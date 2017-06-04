@@ -1,10 +1,8 @@
 #!/bin/bash
 
 export auth_token="FILL IN HERE WITH YOUR W/R AUTH TOKEN";
-export auth_token="3e8966ef2980a84f8ae6a7c2883824749393e9e3b87d171d3b4bbd6c60c57af1";
 
 export droplet_ssh_key="FILL IN HERE WITH YOUR SSH KEY";
-export droplet_ssh_key="$(cat ~/.ssh/id_rsa.pub)"
 export droplet_ssh_key_name="Reza id_rsa";
 
 export droplet_img="docker";
@@ -22,10 +20,10 @@ droplet_ssh_key_id=$(curl -s -X GET "https://api.digitalocean.com/v2/account/key
 
 echo "Using ssh key fingerprint: '$droplet_ssh_key_id'";
 
-curl -s -X POST "https://api.digitalocean.com/v2/account/keys" \
-    -H "Content-Type: application/json" \
-    -H "Authorization: Bearer $auth_token" \
-    -d "{\"id\":\"$droplet_ssh_key_name\",\"public_key\":\"$droplet_ssh_key\"}"
+# curl -s -X POST "https://api.digitalocean.com/v2/account/keys" \
+#     -H "Content-Type: application/json" \
+#     -H "Authorization: Bearer $auth_token" \
+#     -d "{\"id\":\"$droplet_ssh_key_name\",\"public_key\":\"$droplet_ssh_key\"}"
 
 curl -s -X POST "https://api.digitalocean.com/v2/droplets" \
     -H "Content-Type: application/json" \
