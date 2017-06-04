@@ -15,19 +15,19 @@ export droplet_name_prefix="octave-docker";
 export droplet_tag="octave-docker-fleet";
 export droplet_name="$droplet_name_prefix-00";
 
-droplet_ssh_key_id=$(curl -X GET "https://api.digitalocean.com/v2/account/keys" \
+droplet_ssh_key_id=$(curl -s -X GET "https://api.digitalocean.com/v2/account/keys" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer $auth_token" \
     | jq -r ' .ssh_keys[].fingerprint ')
 
 echo "Using ssh key fingerprint: '$droplet_ssh_key_id'";
 
-curl -X POST "https://api.digitalocean.com/v2/account/keys" \
+curl -s -X POST "https://api.digitalocean.com/v2/account/keys" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer $auth_token" \
     -d "{\"id\":\"$droplet_ssh_key_name\",\"public_key\":\"$droplet_ssh_key\"}"
 
-curl -X POST "https://api.digitalocean.com/v2/droplets" \
+curl -s -X POST "https://api.digitalocean.com/v2/droplets" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer $auth_token" \
     -d "{\"name\":\"$droplet_name\",\"region\":\"$droplet_region\",\"size\":\"$droplet_size\",\"image\":\"$droplet_img\",\"ssh_keys\":[\"$droplet_ssh_key_id\"],\"backups\":false,\"ipv6\":false,\"user_data\":null,\"private_networking\":null,\"volumes\":null,\"tags\":[\"$droplet_tag\"]}"
