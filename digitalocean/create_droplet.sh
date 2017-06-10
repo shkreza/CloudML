@@ -42,6 +42,7 @@ function getRegisteredSshKeyNames()
     echo $response | jq -r " .ssh_keys[].name ";
 }
 
+# Create a new droplet with specification; returns created droplets' tags
 function createDroplet() 
 {
     local auth_token="$1";

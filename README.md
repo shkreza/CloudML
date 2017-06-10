@@ -1,7 +1,12 @@
 # CloudML
 
+## Droplet creation
+Allocate a desired number of Droplets with the Docker image (currently
+        17.05.0-ce). Or by running: `./digitalocean/create_droplet.sh`.
+
 ## Setup
-Allocate a desired number of Droplets with the Docker image (currently 17.05.0-ce). Once the Droplets are initialized, ssh to one that acts as lead swarm manager and execute:
+Assuming that the Droplets are initialized, ssh to one that acts as lead swarm
+manager and execute:
 ```
 # get the machine's advertisable IP address
 ifconfig
@@ -16,7 +21,8 @@ docker swarm join-token worker
 ufw allow <PORT>
 ```
 
-The last command produces the command to run on workers to join the swarm that is managed by the manager. Run it on the worker droplets:
+The last command produces the command to run on workers to join the swarm that
+is managed by the manager. Run it on the worker droplets:
 ```
 # have woker join the swarm
 docker swarm join \
@@ -27,9 +33,16 @@ docker swarm join \
 Your wokder/manager swarm is now set up.
 
 ## Docker image
-The docker image that runs your ML code must have the prerequisite binaries - in this case, I intend to run Octave code, so I use a docker image that I built with Octave installed. Additionally, I use Google Cloud storage to store my octave code, which will be downloaded at runtime to the running containers. I thereofre also build the image with GCP SDK installed.
+The docker image that runs your ML code must have the prerequisite binaries -
+in this case, I intend to run Octave code, so I use a docker image that I built
+with Octave installed. Additionally, I use Google Cloud storage to store my
+octave code, which will be downloaded at runtime to the running containers. I
+thereofre also build the image with GCP SDK installed.
 
-A prepared Docker image is published at my [Docker hub](https://hub.docker.com/r/shkreza/octave-gcloud/). You can retrieve it using `docker pull shkreza/octave-gcloud` or alternatively build your own images using the following Dockerfile:
+A prepared Docker image is published at my [Docker
+hub](https://hub.docker.com/r/shkreza/octave-gcloud/). You can retrieve it
+using `docker pull shkreza/octave-gcloud` or alternatively build your own
+images using the following Dockerfile:
 ```
 FROM ubuntu:latest
 MAINTAINER sherafat.us@gmail.com
@@ -55,11 +68,19 @@ EXPOSE 80 443 22
 ```
 
 ## Service definitions
-The ML code you intend to run should be available inside the container. You can use Google Cloud storage bucket, as I did below. You need to upload your octave code and data to a `BUCKET` and use the code below when starting your container to download it.
+The ML code you intend to run should be available inside the container. You can
+use Google Cloud storage bucket, as I did below. You need to upload your octave
+code and data to a `BUCKET` and use the code below when starting your container
+to download it.
 
-Downloading the octave code takes place as part of start-up of your container, which when in swarm mode, runs as a service in one of the worker nodes.
+Downloading the octave code takes place as part of start-up of your container,
+            which when in swarm mode, runs as a service in one of the worker
+            nodes.
 
-Therefore, assuming you have completed the swarm setup (steps above) you can define the service and its start-up code as follows. Once the code is downlaoded octave is launched in `--no-gui` mode by passing in the `.m` file for your ML model.
+Therefore, assuming you have completed the swarm setup (steps above) you can
+define the service and its start-up code as follows. Once the code is
+downlaoded octave is launched in `--no-gui` mode by passing in the `.m` file
+for your ML model.
 ```
 # Define docker service with your image (use your own custom image or shkreza/octave-gcloud)
 docker service --name <MY_ML_SERVICE> <IMAGE> \
@@ -76,9 +97,12 @@ docker service --name <MY_ML_SERVICE> <IMAGE> \
 ```
 
 ## Execution
-Docker swarm manager will automaticallly assign your service/task to one of its workers, download the image and start its execution.
+Docker swarm manager will automaticallly assign your service/task to one of its
+workers, download the image and start its execution.
 
-You can view the progress of the execution by monitoring the console output (in future, I will improve this area by allowing execution results to be pushed to a final bucket).
+You can view the progress of the execution by monitoring the console output (in
+        future, I will improve this area by allowing execution results to be
+        pushed to a final bucket).
 ```
 docker service logs <MY_ML_SERVICE>
 ```
